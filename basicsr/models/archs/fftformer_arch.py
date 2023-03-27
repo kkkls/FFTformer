@@ -63,7 +63,8 @@ class LayerNorm(nn.Module):
 
 
 class DFFN(nn.Module):
-    def __init__(self, dim, ffn_expansion_factor, bias, ):
+    def __init__(self, dim, ffn_expansion_factor, bias):
+
         super(DFFN, self).__init__()
 
         hidden_features = int(dim * ffn_expansion_factor)
