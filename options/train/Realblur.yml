@@ -1,0 +1,110 @@
+name: Realblur_fftformer
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 8
+manual_seed: 42
+
+datasets:
+  train:
+    name: realblur-train
+    type: PairedImageDataset
+    dataroot_gt: /data0/konglignshun/dataset/Realblur-J/train/sharp.lmdb
+    dataroot_lq: /data0/konglignshun/dataset/Realblur-J/train/blur.lmdb
+
+    filename_tmpl: '{}'
+    io_backend:
+      type: lmdb
+
+    gt_size: 256
+    use_flip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 2
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: realblur-test
+    type: PairedImageDataset
+    dataroot_gt: /data0/konglignshun/dataset/Realblur-J/val/sharp.lmdb
+    dataroot_lq: /data0/konglignshun/dataset/Realblur-J/val/blur.lmdb
+    io_backend:
+      type: lmdb
+
+
+network_g:
+  type: fftformer
+  inp_channels: 3
+  out_channels: 3
+  dim: 48
+  num_blocks: [6,6,12]
+  num_refinement_blocks: 4
+  ffn_expansion_factor: 3
+  bias: False
+
+
+# path
+path:
+  pretrain_network_g:
+  strict_load_g:
+  resume_state:
+
+# training settings
+train:
+  optim_g:
+    type: AdamW
+    lr: !!float 4e-4
+    weight_decay: !!float 1e-3
+    betas: [0.9, 0.9]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 300000
+    eta_min: !!float 1e-7
+
+  total_iter: 300000
+  warmup_iter: -1 # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+  fft_loss_opt:
+    type: FFTLoss
+    loss_weight: 0.1
+    reduction: mean
+
+# validation settings
+val:
+  val_freq: !!float 1e3
+  save_img: false
+
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 1e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

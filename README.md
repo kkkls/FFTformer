@@ -60,6 +60,6 @@ We measured PSNR using [official RealBlur test code](https://github.com/rimchang
 
 ---
 
-##Acknowledgment: 
+## Acknowledgment: 
 This code is based on the [Restormer](https://github.com/swz30/Restormer) and [NAFNet](https://github.com/megvii-research/NAFNet)
 
