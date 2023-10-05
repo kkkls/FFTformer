@@ -52,6 +52,8 @@ bash train.sh
 
 ## Test
 
+Realblur pre-trained model is available at https://drive.google.com/drive/folders/1l_R8_2UKfiQP_BYrgcQrmCBSe_ogwL41?usp=drive_link
+
 bash test.sh
 
 Output images will be saved in ``` results/model_name/dataset_name/``` folder.
